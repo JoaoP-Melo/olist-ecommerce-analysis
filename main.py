@@ -63,3 +63,53 @@ plt.gca().invert_yaxis()
 
 
 # %%
+# Pergunta 03
+
+order_items_analise = order_items[["order_id", "product_id"]]
+products_analise = products[["product_id","product_category_name"]]
+
+df_analise = order_items_analise.merge(right=products_analise, on='product_id')
+
+df_analise = (df_analise[["product_category_name", "order_id"]]
+              .groupby("product_category_name", as_index=False)
+              .size())
+
+df_analise["percentual"] = df_analise["size"] / df_analise["size"].sum() * 100
+
+df_analise = df_analise.sort_values("size", ascending=False).iloc[0:10]
+
+
+plt.figure(figsize=(8,5))
+plt.barh(df_analise["product_category_name"], df_analise["size"])
+plt.ylabel("Categorias")
+plt.xlabel("Quantidade de Vendas")
+plt.title("Quantidade de Venda das Categorias")
+plt.gca().invert_yaxis()
+
+# %%
+
+#Pergunta 04
+
+order_items_analise = order_items[["order_id", "product_id", "price"]]
+orders_analise = orders[["order_id", "customer_id"]]
+custumers_analise = custumers[["customer_id", "customer_state"]]
+
+df_analise = order_items_analise.merge(right=orders_analise, on='order_id')
+df_analise = df_analise.merge(right=custumers_analise, on='customer_id')
+
+
+df_analise = df_analise.groupby('customer_state', as_index=False).agg({'price' : 'median'}).sort_values('customer_state')
+df_analise
+
+plt.figure(figsize=(8,5))
+plt.barh(df_analise["customer_state"], df_analise["price"])
+plt.ylabel("Categorias")
+plt.xlabel("Quantidade de Vendas")
+plt.title("Quantidade de Venda das Categorias")
+plt.gca().invert_yaxis()
+
+# %%
+#Pergunta 05
+
+
+# %%
