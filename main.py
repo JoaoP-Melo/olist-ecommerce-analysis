@@ -2,6 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 custumers = pd.read_csv("data\olist_customers_dataset.csv")
 orders = pd.read_csv("data\olist_orders_dataset.csv")
@@ -110,6 +111,30 @@ plt.gca().invert_yaxis()
 
 # %%
 #Pergunta 05
+orders_review_analise = order_review[['order_id','review_score']]
+order_items_analise = order_items[['order_id', 'price']]
+
+df_analise = orders_review_analise.merge(right=order_items_analise, on='order_id')
+df_analise = df_analise.groupby('order_id').agg({
+    'price': 'sum',
+    'review_score': 'first'
+})
+
+np.corrcoef(df_analise['review_score'],df_analise['price'])
+
+df_analise[df_analise["price"] > 5000]
+
+df_analise = df_analise[df_analise["price"] <= 5000]
+
+plt.scatter(df_analise['price'], df_analise['review_score'])
+plt.xlabel("Preço Total do Pedido")
+plt.ylabel("Nota")
+plt.title("Relação entre Preço e Avaliação")
+plt.show()
+
+
+
+
 
 
 # %%
