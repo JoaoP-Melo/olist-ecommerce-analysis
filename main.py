@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
+
 custumers = pd.read_csv("data\olist_customers_dataset.csv")
 orders = pd.read_csv("data\olist_orders_dataset.csv")
 order_items = pd.read_csv("data\olist_order_items_dataset.csv")
@@ -104,9 +105,9 @@ df_analise
 
 plt.figure(figsize=(8,5))
 plt.barh(df_analise["customer_state"], df_analise["price"])
-plt.ylabel("Categorias")
-plt.xlabel("Quantidade de Vendas")
-plt.title("Quantidade de Venda das Categorias")
+plt.ylabel("Estado do cliente")
+plt.xlabel("Preco")
+plt.title("Preco medio por estado")
 plt.gca().invert_yaxis()
 
 # %%
@@ -133,6 +134,61 @@ plt.title("Relação entre Preço e Avaliação")
 plt.show()
 
 
+# %%
+# Pergunta 06
+
+df_analise = orders_review_analise.merge(right=order_items_analise, on='order_id')
+df_analise = df_analise.groupby('order_id').agg({
+    'price': 'sum',
+    'review_score': 'first'
+})
+
+df_analise = df_analise[df_analise["price"] <= 5000]
+
+df_analise['faixa_preco'] = pd.qcut(df_analise['price'], 5)
+
+df_analise.groupby('faixa_preco')['review_score'].mean()
+
+
+# %%
+#Pergunta 07
+
+order_items_analise = order_items[["product_id","seller_id"]]
+sellers_analise = sellers
+
+df_analise = order_items_analise.merge(right=sellers_analise, on="seller_id")
+df_analise = df_analise.groupby("seller_id").agg({
+    "product_id" : "size",
+    "seller_state" : "first",
+    "seller_zip_code_prefix" : "first"})
+
+df_analise["seller_zip_code_prefix"] = df_analise["seller_zip_code_prefix"].astype("str")
+df_analise = df_analise.sort_values("product_id", ascending=False).iloc[0:10]
+
+plt.figure(figsize=(8,5))
+plt.barh(df_analise["seller_zip_code_prefix"], df_analise["product_id"])
+plt.ylabel("Zip vendendor")
+plt.xlabel("Quantidade de Vendas")
+plt.title("Quantidade de vendas de casa vendedor")
+plt.gca().invert_yaxis()
+
+df_analise
+
+# %%
+
+orders_analise  = orders[["order_id","customer_id", "order_delivered_carrier_date","order_delivered_customer_date"]]
+
+custumers_analise = custumers[["customer_id", "customer_state"]]
+
+df_analise = orders_analise.merge(right=custumers_analise, on="customer_id")
+
+def formata_data(data_completa : str):
+    data, horas = data_completa.split(' ')
+    return data
+
+df_analise["order_delivered_carrier_date"] = df_analise["order_delivered_carrier_date"].apply(formata_data)
+df_analise["order_delivered_customer_date"] = df_analise["order_delivered_customer_date"]. apply(formata_data)
+df_analise
 
 
 
