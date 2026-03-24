@@ -176,21 +176,50 @@ df_analise
 
 # %%
 
-orders_analise  = orders[["order_id","customer_id", "order_delivered_carrier_date","order_delivered_customer_date"]]
+orders_analise  = orders[["order_approved_at", "order_id","customer_id", "order_delivered_carrier_date","order_delivered_customer_date","order_estimated_delivery_date"]]
 
 custumers_analise = custumers[["customer_id", "customer_state"]]
 
 df_analise = orders_analise.merge(right=custumers_analise, on="customer_id")
 
+df_analise = df_analise[df_analise["order_approved_at"].notnull()]
+df_analise['order_delivered_carrier_date'] = df_analise['order_delivered_carrier_date'].fillna(df_analise['order_approved_at'])
+df_analise['order_delivered_customer_date'] = df_analise['order_delivered_customer_date'].fillna(df_analise['order_estimated_delivery_date'])
+
+df_analise
 def formata_data(data_completa : str):
-    data, horas = data_completa.split(' ')
-    return data
+    data_completa = str(data_completa)
+    data = data_completa.split(' ')
+
+    return data[0]
 
 df_analise["order_delivered_carrier_date"] = df_analise["order_delivered_carrier_date"].apply(formata_data)
 df_analise["order_delivered_customer_date"] = df_analise["order_delivered_customer_date"]. apply(formata_data)
-df_analise
 
 
+df_analise["order_delivered_carrier_date"] = pd.to_datetime(df_analise["order_delivered_carrier_date"])
+df_analise["order_delivered_customer_date"] = pd.to_datetime(df_analise["order_delivered_customer_date"])
+
+
+df_analise['tempo_de_entrega_total'] = df_analise["order_delivered_customer_date"] - df_analise["order_delivered_carrier_date"]
+
+df_analise['tempo_de_entrega_total'] = df_analise['tempo_de_entrega_total'].astype(str)
+
+def pega_dias(n_dias):
+    n_dias = str(n_dias)
+    dias = n_dias.split(' ')
+    dias = int(dias[0])
+    return dias
+
+df_analise['tempo_de_entrega_total'] = df_analise['tempo_de_entrega_total'].apply(pega_dias)
+df_analise = df_analise.groupby('customer_state',as_index=False).agg({'tempo_de_entrega_total' : 'mean'})
+
+
+plt.figure(figsize=(8,5))
+plt.barh(df_analise["Estado"], df_analise["tempo_de_entrega_total"])
+plt.ylabel("customer_state")
+plt.xlabel("Tempo medio de entregas")
+plt.title("Tempo dmedio de entregas por regiao(Em dias)")
 
 
 # %%
