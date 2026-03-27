@@ -50,19 +50,11 @@ df_analyses = (df_analyses[["product_category_name", "order_id"]]
               .groupby("product_category_name", as_index=False)
               .size())
 
-df_analyses["percentual"] = df_analyses["size"] / df_analyses["size"].sum() * 100
+df_analyses["percent"] = df_analyses["size"] / df_analyses["size"].sum() * 100
 
-df_analyses = df_analyses.sort_values("size", ascending=False).iloc[0:3]
+df_analyses = df_analyses.sort_values("size", ascending=False).iloc[0:5]
 
-
-plt.figure(figsize=(8,5))
-plt.barh(df_analyses["product_category_name"], df_analyses["size"])
-plt.ylabel("Categorias")
-plt.xlabel("Quantidade de Vendas")
-plt.title("Quantidade de Venda das Categorias")
-plt.gca().invert_yaxis()
-
-
+df_analyses
 
 # %%
 # Pergunta 03
@@ -100,15 +92,10 @@ df_analyses = order_items_analise.merge(right=orders_analise, on='order_id')
 df_analyses = df_analyses.merge(right=custumers_analise, on='customer_id')
 
 
-df_analyses = df_analyses.groupby('customer_state', as_index=False).agg({'price' : 'median'}).sort_values('customer_state')
+df_analyses = df_analyses.groupby('customer_state', as_index=False).agg({'price' : 'median', 'customer_id': 'size'}).sort_values('customer_state')
+df_analyses = df_analyses.rename(columns={'price' : 'mean', 'customer_id' : 'qty_sales'})
 df_analyses
 
-plt.figure(figsize=(8,5))
-plt.barh(df_analyses["customer_state"], df_analyses["price"])
-plt.ylabel("Estado do cliente")
-plt.xlabel("Preco")
-plt.title("Preco medio por estado")
-plt.gca().invert_yaxis()
 
 # %%
 #Pergunta 05
