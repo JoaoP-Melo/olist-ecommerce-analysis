@@ -159,8 +159,6 @@ plt.xlabel("Quantidade de Vendas")
 plt.title("Quantidade de vendas de casa vendedor")
 plt.gca().invert_yaxis()
 
-df_analyses
-
 # %%
 #Pergunta 08
 
@@ -204,7 +202,7 @@ df_analyses = df_analyses.groupby('customer_state',as_index=False).agg({'tempo_d
 
 
 plt.figure(figsize=(8,5))
-plt.barh(df_analyses["Estado"], df_analyses["tempo_de_entrega_total"])
+plt.barh(df_analyses["customer_state"], df_analyses["tempo_de_entrega_total"])
 plt.ylabel("customer_state")
 plt.xlabel("Tempo medio de entregas")
 plt.title("Tempo dmedio de entregas por regiao(Em dias)")
